@@ -1,0 +1,23 @@
+{
+  "name": "calculadordedistancia",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LaaraRocha/Calculadordedistancia.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LaaraRocha/Calculadordedistancia/issues"
+  },
+  "homepage": "https://github.com/LaaraRocha/Calculadordedistancia#readme",
+  "dependencies": {
+    "pg": "^8.7.1"
+  }
+}
