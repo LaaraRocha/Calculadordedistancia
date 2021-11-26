@@ -1,7 +1,5 @@
 <?php
 
-use function MongoDB\BSON\toJSON;
-
 session_start();
 
     $url = 'http://localhost:3080/buscar-lista-aeroportos';
@@ -14,18 +12,19 @@ session_start();
 
     if (isset($_POST['calcular_distancia'])) {
         if (isset($_POST['aeroporto_origem']) && isset($_POST['aeroporto_destino'])){
-            $origemDestino = array('origem' => $_POST['aeroporto_origem'],
-                                    'destino' => $_POST['aeroporto_destino']);
-            $url = 'http://localhost:3080/calcular-distancia';
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_POST, TRUE);
+            $origem = $_POST['aeroporto_origem'];
+            $destino = $_POST['aeroporto_destino'];
+            $origemDestino = array('aeroportoOrigem' => $origem,
+                'aeroportoDestino' => $destino);
+            $url = 'http://localhost:3080/calcular-distancia?'.http_build_query($origemDestino);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HTTPGET, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HEADER, 'content-type: application/json');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, "{origem: '" . $_POST['aeroporto_origem'] . "', 
-                                                                destino: '" . $_POST['aeroporto_destino'] . "'}");
-            $response_json = curl_exec($ch);
+            $resposta = curl_exec($ch);
             curl_close($ch);
-            $caminho = json_decode($response_json, true);
+            $caminho = json_decode($resposta, true);
+            echo $caminho;
         }
     }
 
@@ -35,7 +34,7 @@ session_start();
 <html lang="ptbr" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Calculadora distancia</title>
 </head>
 <body>
 <img alt="grafo de aeroportos" height="600" width="900" src="GRAFO_TRABALHO.png">
@@ -72,8 +71,24 @@ session_start();
 
             ?>
         </datalist>
-
         <input type="submit" id="calcular" name="calcular_distancia" value="calcular distância">
+
+
+        <?php
+            if ($caminho != null){
+               echo '<table>';
+            }
+            foreach ($caminho as $aviao) {
+                echo '<tr>';
+                echo '<td>'.$aviao['origem'].' '.$aviao['distancia'].' '.$aviao['destino'].'</td>';
+                echo '</tr>';
+            }
+            echo '</table>';
+        ?>
+
+
+
+        </table>
     </fieldset>
 </form>
 </body>

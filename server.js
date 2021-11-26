@@ -11,7 +11,6 @@ app.listen(port, () => {
 
 app.use(bodyParser.json());
 
-
 app.get('/buscar-lista-aeroportos', async(req, res) => {
     const client = await pool.connect();
     let result = await client.query("select origem " +
@@ -27,27 +26,19 @@ app.get('/buscar-lista-aeroportos', async(req, res) => {
     res.json(nomeAeroporto);
 });
 
-this.estrada = async function (final) {
-    return [];
-}
-app.post('/calcular-distancia', async (req, res) => {
+app.get('/calcular-distancia', async (req, res) => {
     if (!Object.is(req.body, null)){
-        console.log('chegou aqui');
-        console.log('body origem: ' + req.body.origem);
-        console.log('body destino: ' + req.body.destino);
-        let origem = req.body.origem;
-        let destino = req.body.destino;
+        let origem = req.query.aeroportoOrigem;
+        let destino = req.query.aeroportoDestino;
         let totalDistancia = 0;
         let conexao = [];
         let final = '';
         let resultado = [];
         let caminhoTemp;
         let distanciaTemp = Infinity;
-        conexao = await this.estrada(origem);
+        conexao = await estrada(origem);
         while (final != destino) {
-            console.log('conexao: ' + conexao[0]);
             caminhoTemp = conexao[0];
-            console.log('caminho temp: ' + caminhoTemp);
             conexao.forEach(p => {
                 if (distanciaTemp > (p.distancia)) {
                     distanciaTemp = p.distancia;
@@ -58,26 +49,23 @@ app.post('/calcular-distancia', async (req, res) => {
             console.log(caminhoTemp);
             final = caminhoTemp.destino;
             resultado.push(caminhoTemp);
-            conexao = await this.estrada(final)
+            conexao = await estrada(final)
         }
-        return resultado;
+        res.json(resultado);
     }
 });
 
-module.exports = {
-    estrada: async function(caminho){
-        console.log('entrou query ' + caminho);
-        const client = await pool.connect();
-        let result = await client.query("select * from path where origem like" + "'" + caminho + "'");
-        let passagem = [];
-        if (result != null) {
-            result.rows.forEach(temp => {
-                console.log('temp: ' + temp.origem);
-                passagem.push(new Caminho(temp.origem, temp.distancia, temp.destino));
-            })
-        }
-        client.release();
-        return passagem;
+async function estrada(caminho) {
+    const client = await pool.connect();
+    let result = await client.query("select * from path where origem like" + "'" + caminho + "'");
+    let passagem = [];
+    if (result != null) {
+        result.rows.forEach(temp => {
+            passagem.push(new Caminho(temp.origem, temp.distancia, temp.destino));
+        })
     }
+    client.release();
+    return passagem;
 }
+
 
